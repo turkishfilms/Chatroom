@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+
+    <ul id="chatbox"></ul>
+    <form id="chatInput" action="/submitMessage" method="POST">
+        <h1>Chatting as <input type="text" placeholder="guest" name="username" id="username"></h1>
+        <label>Enter Message:</label>
+        <input type="text" name="message" required></input>
+
+        <input type="submit" value="Submit">
+        
+    </form>
+    <script>
+
+        document.getElementById('chatInput').addEventListener('submit', function(event) {
+          event.preventDefault();
+
+          var username = document.getElementById('username').value;
+          var message = this.message.value;
+
+          fetch('/submitMessage', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: username,
+              message: message
+            }),
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            updateChatbox();
+            this.reset();
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+        });
+
+        function updateChatbox() {
+          // Fetch updated messages from the server
+          fetch('/getUpdatedMessages')
+            .then((response) => response.json())
+            .then((data) => {
+              
+              const chatbox = document.getElementById('chatbox');
+              chatbox.innerHTML = ''; // Clear the existing list
+  
+              data.forEach((message) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${message.name}: ${message.message}`;
+                chatbox.appendChild(listItem);
+              });
+            })
+            .catch((error) => {
+              console.error('Error fetching updated messages:', error);
+            });
+        
+        }
+  
+        setInterval(updateChatbox, 5000);
+
+        updateChatbox();
+
+      </script>
+</body>
+</html>
