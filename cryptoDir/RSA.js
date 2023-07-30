@@ -1,18 +1,22 @@
 import primesList from "./Primes";
-
+import PrimeManager from "./PrimeManager";
+/**
+ * import RSA from "./cryptoDir/RSA"
+ *
+ * const rsa = new RSA()
+ * const SERVER_KEYS = rsa.generateKeyPair("some random string", "some random string")
+ * when receiving a message, use message.publicKey to decrypt message using rsa.decryptMessage(message.message,message.publicKey)
+ * when sending messages send {message:encryptedMessage, key:SERVER_KEYS.publicKey} encrpytedMessage = rsa.encryptMessage(message,SERVER_KEYS.privateKey)
+ *
+ */
 export default class RSA {
   constructor() {
-    this.primesList = primesList;
+    this.primeManager = new PrimeManager(primesList);
   }
 
   generateKeyPair = (input1, input2) => {
-    const prime1 = this.generatePrimeFromInput(input1);
-    const prime2 = this.generatePrimeFromInput(input2);
-
-    return this.keyPairgeneratorRSA(
-      prime1,
-      this.differentPrime(prime1, prime2, this.primeList)
-    );
+    const { prime1, prime2 } = this.generatePrimesFromInput(input1, input2);
+    return this.keyPairgeneratorRSA(prime1, prime2);
   };
 
   encryptMessage = (message, encryptionKey) => {
@@ -40,15 +44,6 @@ export default class RSA {
     return message.join("");
   };
   /////////////////////////////////
-  differentPrime = (prime1, prime2, primeList) => {
-    if (prime1 == prime2) {
-      //if prime number 2 is equal to prime number 1
-      return primeList[(primeList.indexOf(prime2) + 1) % primeList.length];
-      //then pick the next prime number, (index wraps around the end)
-    } else {
-      return prime2;
-    }
-  };
 
   sumCharacterCodes = (characters) => {
     const codeList = characters.split("");
@@ -58,8 +53,11 @@ export default class RSA {
     return total;
   };
 
-  generatePrimeFromInput = (input, primeList) => {
-    return primeList[this.sumCharacterCodes(input) % primeList.length];
+  generatePrimesFromInput = (input1, input2) => {
+    return this.primeManager.generatePrimePair(
+      this.sumCharacterCodes(input1),
+      this.sumCharacterCodes(input2)
+    );
   };
 
   keyPairgeneratorRSA = (prime1, prime2) => {
@@ -77,8 +75,8 @@ export default class RSA {
       for (let d = 2; d < T / 12; d++) {
         if ((d * e) % T == 1 && e != d && d < 500000) {
           return {
-            encryptionKey: { key: e, base: N },
-            decryptionKey: { key: d, base: N },
+            publicKey: { key: e, base: N },
+            privateKey: { key: d, base: N },
           };
         }
       }

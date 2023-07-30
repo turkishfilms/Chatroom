@@ -11,6 +11,7 @@ Server
 -generate server key pair
 -Recieve messages encoded with rsa
 -decode messages
+-encode outputs
 ^^^^^^^PHASE 1^^^^^
 
 -hash message
