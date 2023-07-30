@@ -1,0 +1,25 @@
+//
+
+
+Client
+-generate client key pair
+-encode messages using client key
+-send encrypted messages 
+
+Server
+
+-generate server key pair
+-Recieve messages encoded with rsa
+-decode messages
+-encode outputs
+^^^^^^^PHASE 1^^^^^
+
+-hash message
+-verify hash
+sending hash message digests
+hash digest verification
+^^^^^^PHASE 2^^^^^^
+
+Signing messages 
+symmetric key
+^^^^^^PHASE 3^^^^^^^
