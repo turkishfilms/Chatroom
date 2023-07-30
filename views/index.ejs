@@ -7,9 +7,13 @@
 </head>
 <body>
 
+
+  <a href="/register">Register</a>
+  <a href="/login">Login</a> 
+  <a href="/logout">Logout</a> 
     <ul id="chatbox"></ul>
     <form id="chatInput" action="/submitMessage" method="POST">
-        <h1>Chatting as <input type="text" placeholder="guest" name="username" id="username"></h1>
+        <h1>Chatting as <%= username %></h1>
         <label>Enter Message:</label>
         <input type="text" name="message" required></input>
 
@@ -21,7 +25,6 @@
         document.getElementById('chatInput').addEventListener('submit', function(event) {
           event.preventDefault();
 
-          var username = document.getElementById('username').value;
           var message = this.message.value;
 
           fetch('/submitMessage', {
@@ -30,7 +33,6 @@
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              username: username,
               message: message
             }),
           })
@@ -70,5 +72,7 @@
         updateChatbox();
 
       </script>
+
+
 </body>
 </html>
