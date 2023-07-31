@@ -3,6 +3,7 @@ const session = require("express-session");
 const app = express();
 const flash = require("connect-flash");
 const path = require("path");
+const RSA = require("./cryptoDir/RSA");
 
 app.use(express.json());
 app.use(flash());
@@ -14,6 +15,8 @@ app.use(
     resave: true,
   })
 );
+const rsa = new RSA.default();
+const serverKeys = rsa.generateKeyPair("survybviuerv", "vaoeruyvbvi");
 
 const userData = {
   name: "tabor",
@@ -46,7 +49,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   console.log("working");
-  username =  req.session.user?.username || "guest"
+  username = req.session.user?.username || "guest";
   res.render("index", { username });
 });
 
@@ -114,8 +117,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-
-
 app.post("/login", async (req, res) => {
   const formData = req.body;
 
@@ -136,31 +137,29 @@ app.post("/login", async (req, res) => {
     console.log("Login success");
     req.flash("error", "Log in successful.");
     req.session.user = {
-      username: formData.username
+      username: formData.username,
     };
     res.redirect("/");
   } else {
     console.log("login failed");
     req.flash("error", "Incorrect login information.");
     res.redirect("/login");
-
   }
 });
 
-
-app.get("/logout", (req, res)=>{
+app.get("/logout", (req, res) => {
   req.session.user = {
-    username: "guest"
-  }
+    username: "guest",
+  };
   req.flash("error", "");
-  res.redirect("/")
-} )
+  res.redirect("/");
+});
 
 app.post("/submitMessage", (req, res) => {
   const formData = req.body;
   const message = new chatMessage({
     name: req.session.user?.username || "guest",
-    message: formData.message,
+    message: formData.message, // message: rsa.decryptMessage(formData.message,serverKeys.privateKey)
   });
 
   // Save the message to the database
@@ -175,11 +174,6 @@ app.post("/submitMessage", (req, res) => {
       res.status(500).json({ error: "Error saving message" });
     });
 });
-
-
-
-
-
 
 const port = 3000;
 const localIPAddress = "10.0.0.48";
